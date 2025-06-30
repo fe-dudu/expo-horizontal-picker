@@ -8,7 +8,7 @@
     "build": "expo-module build",
     "changeset": "changeset",
     "changeset:publish": "yarn build && changeset publish",
-    "changeset:version": "changeset version && pnpm i --lockfile-only",
+    "changeset:version": "changeset version && yarn --lockfile-only",
     "clean": "expo-module clean",
     "lint": "expo-module lint",
     "test": "expo-module test",
