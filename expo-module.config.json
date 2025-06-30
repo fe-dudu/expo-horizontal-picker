@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ExpoHorizontalPickerModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.horizontalpicker.ExpoHorizontalPickerModule"]
+  }
+}

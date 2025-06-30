@@ -1,0 +1,59 @@
+{
+  "name": "expo-horizontal-picker",
+  "version": "0.1.0",
+  "description": "My new module",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "expo-module build",
+    "changeset": "changeset",
+    "changeset:publish": "pnpm build && changeset publish",
+    "changeset:version": "changeset version && pnpm i --lockfile-only",
+    "clean": "expo-module clean",
+    "lint": "expo-module lint",
+    "test": "expo-module test",
+    "prepare": "expo-module prepare",
+    "prepublishOnly": "expo-module prepublishOnly",
+    "expo-module": "expo-module",
+    "open:ios": "xed example/ios",
+    "open:android": "open -a \"Android Studio\" example/android"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "expo-horizontal-picker",
+    "ExpoHorizontalPicker",
+    "react-native-horizontal-picker"
+  ],
+  "repository": "https://github.com/fe-dudu/expo-horizontal-picker",
+  "bugs": {
+    "url": "https://github.com/fe-dudu/expo-horizontal-picker/issues"
+  },
+  "author": "fe-dudu <ehehwhdwhd@naver.com> (https://github.com/fe-dudu)",
+  "license": "MIT",
+  "homepage": "https://github.com/fe-dudu/expo-horizontal-picker#readme",
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.6",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.5",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@types/react": "~19.0.0",
+    "expo": "~53.0.0",
+    "expo-module-scripts": "^4.1.6",
+    "husky": "^9.1.7",
+    "knip": "^5.61.3",
+    "lint-staged": "^16.1.2",
+    "packlint": "^0.2.4",
+    "react": "^19.1.0",
+    "react-native": "0.79.1",
+    "typescript": "^5.8.3",
+    "react-native-reanimated": "^3.18.0"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-reanimated": ">=2.10.0"
+  }
+}

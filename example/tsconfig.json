@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "expo-horizontal-picker": ["../src/index"],
+      "expo-horizontal-picker/*": ["../src/*"]
+    }
+  }
+}
