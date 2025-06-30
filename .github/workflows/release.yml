@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/pnpm-setup-node
-      - run: pnpm install --frozen-lockfile --ignore-script
+      - uses: ./.github/actions/yarn-setup-node
+      - run: yarn install --frozen-lockfile --ignore-scripts
       - run: |
           git config --global user.name "fe-dudu"
           git config --global user.email "ehehwhdwhd@naver.com"
@@ -20,8 +20,8 @@ jobs:
         with:
           title: "chore: version packages"
           commit: "chore: version packages"
-          version: pnpm changeset:version
-          publish: pnpm changeset:publish
+          version: yarn changeset:version
+          publish: yarn changeset:publish
           setupGitUser: false
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

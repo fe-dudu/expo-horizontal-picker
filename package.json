@@ -1,13 +1,13 @@
 {
   "name": "expo-horizontal-picker",
   "version": "0.1.0",
-  "description": "My new module",
+  "description": "A performant horizontal picker component for React Native and Expo apps",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
     "build": "expo-module build",
     "changeset": "changeset",
-    "changeset:publish": "pnpm build && changeset publish",
+    "changeset:publish": "yarn build && changeset publish",
     "changeset:version": "changeset version && pnpm i --lockfile-only",
     "clean": "expo-module clean",
     "lint": "expo-module lint",
@@ -50,10 +50,17 @@
     "typescript": "^5.8.3",
     "react-native-reanimated": "^3.18.0"
   },
+  "files": [
+    "/build"
+  ],
   "peerDependencies": {
     "expo": "*",
     "react": "*",
     "react-native": "*",
     "react-native-reanimated": ">=2.10.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "yarn@1.22.22"
 }
