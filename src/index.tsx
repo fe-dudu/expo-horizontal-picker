@@ -15,8 +15,8 @@ import Animated, {
   type AnimatedScrollViewProps,
   runOnJS,
   type SharedValue,
+  useAnimatedReaction,
   useAnimatedScrollHandler,
-  useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated';
 
@@ -25,7 +25,7 @@ interface PickerOption {
   value: string | number;
 }
 
-interface Props extends Omit<AnimatedScrollViewProps, 'style'> {
+interface HorizontalPickerProps extends Omit<AnimatedScrollViewProps, 'style'> {
   data: PickerOption[];
   initialIndex?: number;
   visibleItemCount?: number;
@@ -48,11 +48,10 @@ export function HorizontalPicker({
   itemTextStyle,
   selectedItemTextStyle,
   ...props
-}: Props) {
+}: HorizontalPickerProps) {
   const scrollViewRef = useRef<Animated.ScrollView>(null);
   const lastHapticIndexRef = useRef<number>(-1);
   const [scrollViewWidth, setScrollViewWidth] = useState<number>(0);
-
   const scrollX = useSharedValue<number>(0);
   const currentIndex = useSharedValue<number>(initialIndex);
 
@@ -77,10 +76,9 @@ export function HorizontalPicker({
       const safeIndex = Math.max(0, Math.min(data.length - 1, initialIndex));
       const rawItemWidth = layoutWidth / visibleItemCount;
       const x = PixelRatio.roundToNearestPixel(safeIndex * rawItemWidth);
-
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({ x, y: 0, animated: true });
-      }, 0);
+      requestAnimationFrame(() => {
+        scrollViewRef.current?.scrollTo({ x, y: 0, animated: false });
+      });
     },
     [initialIndex, data.length, visibleItemCount],
   );
@@ -120,20 +118,24 @@ export function HorizontalPicker({
     [data.length, onHapticFeedback],
   );
 
-  useDerivedValue(() => {
-    if (scrollViewWidth === 0) {
-      return;
-    }
-
-    const newIndex = Math.round(scrollX.value / itemWidth);
-    const safeIndex = Math.max(0, Math.min(data.length - 1, newIndex));
-
-    if (safeIndex !== currentIndex.value) {
+  useAnimatedReaction(
+    () => {
+      if (scrollViewWidth === 0) {
+        return null;
+      }
+      const newIndex = Math.round(scrollX.value / itemWidth);
+      const safeIndex = Math.max(0, Math.min(data.length - 1, newIndex));
       currentIndex.value = safeIndex;
-      runOnJS(handleOnChange)(safeIndex);
-      runOnJS(handleOnHapticFeedback)(safeIndex);
-    }
-  }, [itemWidth, data.length]);
+      return safeIndex;
+    },
+    (safeIndex, prevIndex) => {
+      if (safeIndex !== null && safeIndex !== prevIndex) {
+        runOnJS(handleOnChange)(safeIndex);
+        runOnJS(handleOnHapticFeedback)(safeIndex);
+      }
+    },
+    [itemWidth, data.length, scrollViewWidth],
+  );
 
   return (
     <Animated.ScrollView
@@ -166,6 +168,15 @@ export function HorizontalPicker({
   );
 }
 
+interface PickerItemProps
+  extends Pick<HorizontalPickerProps, 'itemContainerStyle' | 'itemTextStyle' | 'selectedItemTextStyle'> {
+  label: PickerOption['label'];
+  index: number;
+  currentIndex: SharedValue<number>;
+  itemWidth: number;
+  onPress: () => void;
+}
+
 function PickerItem({
   label,
   index,
@@ -175,24 +186,18 @@ function PickerItem({
   itemContainerStyle,
   itemTextStyle,
   selectedItemTextStyle,
-}: {
-  label: PickerOption['label'];
-  index: number;
-  currentIndex: SharedValue<number>;
-  itemWidth: number;
-  onPress: () => void;
-  itemContainerStyle?: StyleProp<ViewStyle>;
-  itemTextStyle?: StyleProp<TextStyle>;
-  selectedItemTextStyle?: StyleProp<TextStyle>;
-}) {
+}: PickerItemProps) {
   const [isFocused, setIsFocused] = useState(false);
 
-  useDerivedValue(() => {
-    const shouldBeFocused = currentIndex.value === index;
-    if (shouldBeFocused !== isFocused) {
-      runOnJS(setIsFocused)(shouldBeFocused);
-    }
-  });
+  useAnimatedReaction(
+    () => currentIndex.value === index,
+    (shouldBeFocused, isCurrentFocused) => {
+      if (shouldBeFocused !== isCurrentFocused) {
+        runOnJS(setIsFocused)(shouldBeFocused);
+      }
+    },
+    [index],
+  );
 
   return (
     <Pressable onPress={onPress}>
