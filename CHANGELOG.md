@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.1.3
+
+### Patch Changes
+
+- [#4](https://github.com/fe-dudu/expo-horizontal-picker/pull/4) [`8113c1c`](https://github.com/fe-dudu/expo-horizontal-picker/commit/8113c1cb0a2a39a22f8a6feba40c12d7a1e33261) Thanks [@fe-dudu](https://github.com/fe-dudu)! - refactor: rename data field to items
+
 ## 0.1.2
 
 ### Patch Changes
