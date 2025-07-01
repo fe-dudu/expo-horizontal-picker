@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.1.2
+
+### Patch Changes
+
+- [#2](https://github.com/fe-dudu/expo-horizontal-picker/pull/2) [`e729119`](https://github.com/fe-dudu/expo-horizontal-picker/commit/e72911998bd791df49d2d9550d062c29ba99d4b8) Thanks [@fe-dudu](https://github.com/fe-dudu)! - refactor: replace useDerivedValue with useAnimatedReaction
+
 ## 0.1.1
 
 ### Patch Changes
