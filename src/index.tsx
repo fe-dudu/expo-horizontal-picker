@@ -26,7 +26,7 @@ interface PickerOption {
 }
 
 interface HorizontalPickerProps extends Omit<AnimatedScrollViewProps, 'style'> {
-  data: PickerOption[];
+  items: PickerOption[];
   initialIndex?: number;
   visibleItemCount?: number;
   onChange?: (value: PickerOption['value'], index: number) => void;
@@ -38,7 +38,7 @@ interface HorizontalPickerProps extends Omit<AnimatedScrollViewProps, 'style'> {
 }
 
 export function HorizontalPicker({
-  data,
+  items,
   initialIndex = 0,
   visibleItemCount = 7,
   onChange,
@@ -65,22 +65,22 @@ export function HorizontalPicker({
   }, [scrollViewWidth, visibleItemCount]);
 
   const snapOffsets = useMemo(() => {
-    return data.map((_, index) => PixelRatio.roundToNearestPixel(index * itemWidth));
-  }, [data, itemWidth]);
+    return items.map((_, index) => PixelRatio.roundToNearestPixel(index * itemWidth));
+  }, [items, itemWidth]);
 
   const handleOnLayout = useCallback(
     (e: LayoutChangeEvent) => {
       const layoutWidth = e.nativeEvent.layout.width;
       setScrollViewWidth(layoutWidth);
 
-      const safeIndex = Math.max(0, Math.min(data.length - 1, initialIndex));
+      const safeIndex = Math.max(0, Math.min(items.length - 1, initialIndex));
       const rawItemWidth = layoutWidth / visibleItemCount;
       const x = PixelRatio.roundToNearestPixel(safeIndex * rawItemWidth);
       requestAnimationFrame(() => {
         scrollViewRef.current?.scrollTo({ x, y: 0, animated: false });
       });
     },
-    [initialIndex, data.length, visibleItemCount],
+    [initialIndex, items.length, visibleItemCount],
   );
 
   const handleOnScroll = useAnimatedScrollHandler({
@@ -91,31 +91,31 @@ export function HorizontalPicker({
 
   const handleOnPress = useCallback(
     (newIndex: number) => {
-      const safeIndex = Math.max(0, Math.min(data.length - 1, newIndex));
+      const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
       const x = PixelRatio.roundToNearestPixel(safeIndex * itemWidth);
       scrollViewRef.current?.scrollTo({ x, y: 0, animated: true });
     },
-    [data.length, itemWidth],
+    [items.length, itemWidth],
   );
 
   const handleOnChange = useCallback(
     (index: number) => {
-      const item = data[index];
+      const item = items[index];
       if (item) {
         onChange?.(item.value, index);
       }
     },
-    [onChange, data],
+    [onChange, items],
   );
 
   const handleOnHapticFeedback = useCallback(
     (index: number) => {
-      if (index !== lastHapticIndexRef.current && index >= 0 && index < data.length) {
+      if (index !== lastHapticIndexRef.current && index >= 0 && index < items.length) {
         lastHapticIndexRef.current = index;
         onHapticFeedback?.();
       }
     },
-    [data.length, onHapticFeedback],
+    [items.length, onHapticFeedback],
   );
 
   useAnimatedReaction(
@@ -124,7 +124,7 @@ export function HorizontalPicker({
         return null;
       }
       const newIndex = Math.round(scrollX.value / itemWidth);
-      const safeIndex = Math.max(0, Math.min(data.length - 1, newIndex));
+      const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
       currentIndex.value = safeIndex;
       return safeIndex;
     },
@@ -134,7 +134,7 @@ export function HorizontalPicker({
         runOnJS(handleOnHapticFeedback)(safeIndex);
       }
     },
-    [itemWidth, data.length, scrollViewWidth],
+    [itemWidth, items.length, scrollViewWidth],
   );
 
   return (
@@ -151,9 +151,9 @@ export function HorizontalPicker({
       style={[styles.container, containerStyle]}
       {...props}
     >
-      {data.map((item, index) => (
+      {items.map((item, index) => (
         <PickerItem
-          key={`picker-item-${item.value}`}
+          key={`picker-item-${item.label}-${index}`}
           label={item.label}
           index={index}
           currentIndex={currentIndex}

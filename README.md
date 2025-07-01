@@ -1,4 +1,6 @@
 # expo-horizontal-picker
+[![npm version](https://badge.fury.io/js/expo-horizontal-picker.svg)](https://badge.fury.io/js/expo-horizontal-picker)
+[![npm downloads](https://img.shields.io/npm/dm/expo-horizontal-picker.svg?style=flat-square)](https://www.npmjs.com/package/expo-horizontal-picker)
 
 A performant horizontal picker component for React Native and Expo apps.
 - **Smooth Horizontal Scrolling**  
@@ -55,7 +57,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <View>
         <HorizontalPicker
-          data={Array.from({ length: 100 }, (_, i) => ({
+          items={Array.from({ length: 100 }, (_, i) => ({
             label: `${i + 1}`,
             value: i + 1,
           }))}
@@ -65,7 +67,7 @@ export default function App() {
         />
 
         <HorizontalPicker
-          data={Array.from({ length: 20 }, (_, i) => ({
+          items={Array.from({ length: 20 }, (_, i) => ({
             label: `${i + 1}k`,
             value: i + 1,
           }))}
@@ -76,7 +78,7 @@ export default function App() {
         />
 
         <HorizontalPicker
-          data={Array.from({ length: 24 }, (_, i) => ({
+          items={Array.from({ length: 24 }, (_, i) => ({
             label: `${i + 1}h`,
             value: i + 1,
           }))}
@@ -88,7 +90,7 @@ export default function App() {
         />
 
         <HorizontalPicker
-          data={Array.from({ length: 5 }, (_, i) => ({
+          items={Array.from({ length: 5 }, (_, i) => ({
             label: `${(i + 1) * 10000}`,
             value: (i + 1) * 10000,
           }))}
@@ -114,7 +116,7 @@ const styles = {
 ## 🧩 Props
 | Prop                    | Type                                                   | Default | Description                                                                     |
 |-------------------------|--------------------------------------------------------|---------|---------------------------------------------------------------------------------|
-| `data`                  | `PickerOption[]`                                       | –       | Array of options to display. Each option is an object with `label` and `value`. |
+| `items`                  | `PickerOption[]`                                       | –       | Array of options to display. Each option is an object with `label` and `value`. |
 | `initialIndex`          | `number`                                               | `0`     | Index of the item initially selected.                                           |
 | `visibleItemCount`      | `number`                                               | `7`     | Number of items visible on screen at once.                                      |
 | `onChange`              | `(value: string \| number, index: number) => void`     | –       | Callback triggered when the selected item changes.                              |
