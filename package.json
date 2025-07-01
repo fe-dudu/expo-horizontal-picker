@@ -1,6 +1,6 @@
 {
   "name": "expo-horizontal-picker",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A performant horizontal picker component for React Native and Expo apps",
   "main": "build/index.js",
   "types": "build/index.d.ts",
