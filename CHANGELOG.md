@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.1.5
+
+### Patch Changes
+
+- [#8](https://github.com/fe-dudu/expo-horizontal-picker/pull/8) [`185a8bd`](https://github.com/fe-dudu/expo-horizontal-picker/commit/185a8bdfc4f7a5ac5c546abd607fe4145456d8b2) Thanks [@fe-dudu](https://github.com/fe-dudu)! - fix: initial scrollTo alignment issue by using rounded item width
+
 ## 0.1.4
 
 ### Patch Changes
