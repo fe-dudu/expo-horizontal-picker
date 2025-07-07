@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.1.4
+
+### Patch Changes
+
+- [#6](https://github.com/fe-dudu/expo-horizontal-picker/pull/6) [`99762aa`](https://github.com/fe-dudu/expo-horizontal-picker/commit/99762aae5a95e607baa28a796f8f97bb665f05c8) Thanks [@fe-dudu](https://github.com/fe-dudu)! - fix import error
+
 ## 0.1.3
 
 ### Patch Changes
