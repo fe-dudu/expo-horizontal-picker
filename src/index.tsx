@@ -25,7 +25,7 @@ interface PickerOption {
   value: string | number;
 }
 
-interface HorizontalPickerProps extends Omit<AnimatedScrollViewProps, 'style'> {
+export interface HorizontalPickerProps extends Omit<AnimatedScrollViewProps, 'style'> {
   items: PickerOption[];
   initialIndex?: number;
   visibleItemCount?: number;

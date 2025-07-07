@@ -49,9 +49,6 @@
     "typescript": "^5.8.3",
     "react-native-reanimated": "^3.18.0"
   },
-  "files": [
-    "/build"
-  ],
   "peerDependencies": {
     "expo": "*",
     "react": "*",
