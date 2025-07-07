@@ -74,7 +74,7 @@ export function HorizontalPicker({
       setScrollViewWidth(layoutWidth);
 
       const safeIndex = Math.max(0, Math.min(items.length - 1, initialIndex));
-      const rawItemWidth = layoutWidth / visibleItemCount;
+      const rawItemWidth = PixelRatio.roundToNearestPixel(layoutWidth / visibleItemCount);
       const x = PixelRatio.roundToNearestPixel(safeIndex * rawItemWidth);
       requestAnimationFrame(() => {
         scrollViewRef.current?.scrollTo({ x, y: 0, animated: false });
