@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.1.6
+
+### Patch Changes
+
+- [`80e7b03`](https://github.com/fe-dudu/expo-horizontal-picker/commit/80e7b03570b96c3a691e165797b919b94e6f3dbf) Thanks [@fe-dudu](https://github.com/fe-dudu)! - chore: add entries to .npmignore to reduce package size
+
 ## 0.1.5
 
 ### Patch Changes
