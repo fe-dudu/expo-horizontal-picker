@@ -22,8 +22,10 @@ example.gif
 README.md
 CHANGELOG.md
 
-tsconfig.json
+.lintstagedrc
+.nvmrc
 biome.json
-knip.json
+tsconfig.json
 commitlint.config.cjs
+knip.json
 packlint.config.mjs
