@@ -118,6 +118,7 @@ Customize the focused and unfocused item styles with GPU-accelerated properties:
 | `focusedOpacityStyle`      | `number`                                               | `1`                  | Opacity value for the focused item (GPU-accelerated).                           |
 | `unfocusedOpacityStyle`    | `number`                                               | `0.2`                | Opacity value for unfocused items (GPU-accelerated).                            |
 | `pickerItemStyle`          | `ViewStyle`                                            | –                    | Style applied to each picker item container.                                    |
+| `pickerItemTextStyle`      | `TextStyle`                                            | –                    | Style applied to the text inside each picker item.                              |
 | `style`                    | `ViewStyle`                                            | –                    | Style applied to the scroll container.                                          |
 
 ### Additional FlatList Props

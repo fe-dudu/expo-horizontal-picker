@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { PixelRatio, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import { PixelRatio, Pressable, StyleSheet, type TextStyle, View, type ViewStyle } from 'react-native';
 import Animated, {
   type FlatListPropsWithLayout,
   type SharedValue,
@@ -10,7 +10,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 
-interface PickerOption {
+export interface PickerOption {
   label: string;
   value: string | number;
 }
@@ -39,6 +39,7 @@ export interface HorizontalPickerProps extends FlatListProps {
   focusedOpacityStyle?: number;
   unfocusedOpacityStyle?: number;
   pickerItemStyle?: ViewStyle;
+  pickerItemTextStyle?: TextStyle;
 }
 
 export function HorizontalPicker({
@@ -59,6 +60,7 @@ export function HorizontalPicker({
   focusedOpacityStyle = 1,
   unfocusedOpacityStyle = 0.2,
   pickerItemStyle,
+  pickerItemTextStyle,
   style,
   ...props
 }: HorizontalPickerProps) {
@@ -129,6 +131,7 @@ export function HorizontalPicker({
           focusedOpacityStyle={focusedOpacityStyle}
           unfocusedOpacityStyle={unfocusedOpacityStyle}
           pickerItemStyle={pickerItemStyle}
+          pickerItemTextStyle={pickerItemTextStyle}
         />
       )}
       onScroll={onScroll}
@@ -164,6 +167,7 @@ interface PickerItemProps
     | 'focusedOpacityStyle'
     | 'unfocusedOpacityStyle'
     | 'pickerItemStyle'
+    | 'pickerItemTextStyle'
   > {
   label: string;
   index: number;
@@ -183,6 +187,7 @@ function PickerItem({
   focusedOpacityStyle,
   unfocusedOpacityStyle,
   pickerItemStyle,
+  pickerItemTextStyle,
 }: PickerItemProps) {
   const isFocused = useDerivedValue(() => currentIndex.value === index);
 
@@ -196,7 +201,7 @@ function PickerItem({
   return (
     <Pressable onPress={onPress}>
       <View style={[styles.itemContainer, { width: itemWidth }, pickerItemStyle]}>
-        <Animated.Text style={[styles.itemText, animatedStyle]}>{label}</Animated.Text>
+        <Animated.Text style={[styles.itemText, animatedStyle, pickerItemTextStyle]}>{label}</Animated.Text>
       </View>
     </Pressable>
   );
@@ -214,11 +219,6 @@ const styles = StyleSheet.create({
   itemText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#C9CED9',
-  },
-  itemTextSelected: {
-    fontSize: 15,
-    fontWeight: '800',
     color: '#000000',
   },
 });
