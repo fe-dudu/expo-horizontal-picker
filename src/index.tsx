@@ -1,22 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
-import {
-  type LayoutChangeEvent,
-  PixelRatio,
-  Platform,
-  Pressable,
-  type StyleProp,
-  StyleSheet,
-  Text,
-  type TextStyle,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { PixelRatio, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated, {
-  type AnimatedScrollViewProps,
-  runOnJS,
+  type FlatListPropsWithLayout,
   type SharedValue,
-  useAnimatedReaction,
+  runOnJS,
   useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated';
 
@@ -25,186 +15,188 @@ interface PickerOption {
   value: string | number;
 }
 
-export interface HorizontalPickerProps extends Omit<AnimatedScrollViewProps, 'style'> {
+interface FlatListProps
+  extends Omit<
+    FlatListPropsWithLayout<PickerOption>,
+    | 'ref'
+    | 'horizontal'
+    | 'data'
+    | 'renderItem'
+    | 'initialScrollIndex'
+    | 'onScroll'
+    | 'snapToOffsets'
+    | 'contentContainerStyle'
+    | 'getItemLayout'
+  > {}
+
+export interface HorizontalPickerProps extends FlatListProps {
   items: PickerOption[];
-  initialIndex?: number;
+  initialScrollIndex?: number;
   visibleItemCount?: number;
   onChange?: (value: PickerOption['value'], index: number) => void;
-  onHapticFeedback?: () => void;
-  containerStyle?: AnimatedScrollViewProps['style'];
-  itemContainerStyle?: StyleProp<ViewStyle>;
-  itemTextStyle?: StyleProp<TextStyle>;
-  selectedItemTextStyle?: StyleProp<TextStyle>;
+  focusedTransformStyle?: ViewStyle['transform'];
+  unfocusedTransformStyle?: ViewStyle['transform'];
+  focusedOpacityStyle?: number;
+  unfocusedOpacityStyle?: number;
+  pickerItemStyle?: ViewStyle;
 }
 
 export function HorizontalPicker({
   items,
-  initialIndex = 0,
+  initialScrollIndex = 0,
   visibleItemCount = 7,
   onChange,
-  onHapticFeedback,
-  containerStyle,
-  itemContainerStyle,
-  itemTextStyle,
-  selectedItemTextStyle,
+  keyExtractor = (item, index) => `${item.value}-${index}`,
+  scrollEventThrottle = 16,
+  decelerationRate = 'fast',
+  onLayout,
+  showsHorizontalScrollIndicator = false,
+  initialNumToRender = 15,
+  maxToRenderPerBatch = 15,
+  removeClippedSubviews = true,
+  focusedTransformStyle = [{ scale: 1.15 }],
+  unfocusedTransformStyle = [{ scale: 1 }],
+  focusedOpacityStyle = 1,
+  unfocusedOpacityStyle = 0.2,
+  pickerItemStyle,
+  style,
   ...props
 }: HorizontalPickerProps) {
-  const scrollViewRef = useRef<Animated.ScrollView>(null);
-  const lastHapticIndexRef = useRef<number>(-1);
-  const [scrollViewWidth, setScrollViewWidth] = useState<number>(0);
+  const listRef = useRef<Animated.FlatList<PickerOption>>(null);
+  const [width, setWidth] = useState<number>(0);
+
   const scrollX = useSharedValue<number>(0);
-  const currentIndex = useSharedValue<number>(initialIndex);
+  const currentIndex = useSharedValue<number>(initialScrollIndex);
 
   const { itemWidth, paddingSide } = useMemo(() => {
-    const width = PixelRatio.roundToNearestPixel(scrollViewWidth / visibleItemCount);
-    const padding = PixelRatio.roundToNearestPixel(scrollViewWidth / 2 - width / 2);
+    const itemWidth = PixelRatio.roundToNearestPixel(width / visibleItemCount);
+    const paddingSide = PixelRatio.roundToNearestPixel(width / 2 - itemWidth / 2);
     return {
-      itemWidth: width,
-      paddingSide: padding,
+      itemWidth: itemWidth,
+      paddingSide: paddingSide,
     };
-  }, [scrollViewWidth, visibleItemCount]);
+  }, [width, visibleItemCount]);
 
   const snapOffsets = useMemo(() => {
     return items.map((_, index) => PixelRatio.roundToNearestPixel(index * itemWidth));
   }, [items, itemWidth]);
 
-  const handleOnLayout = useCallback(
-    (e: LayoutChangeEvent) => {
-      const layoutWidth = e.nativeEvent.layout.width;
-      setScrollViewWidth(layoutWidth);
+  const handleOnChange = (index: number) => {
+    const item = items[index];
+    if (item) {
+      onChange?.(item.value, index);
+    }
+  };
 
-      const safeIndex = Math.max(0, Math.min(items.length - 1, initialIndex));
-      const rawItemWidth = PixelRatio.roundToNearestPixel(layoutWidth / visibleItemCount);
-      const x = PixelRatio.roundToNearestPixel(safeIndex * rawItemWidth);
-      requestAnimationFrame(() => {
-        scrollViewRef.current?.scrollTo({ x, y: 0, animated: false });
-      });
+  const scrollToIndex = (index: number) => {
+    listRef.current?.scrollToOffset({
+      offset: index * itemWidth,
+      animated: true,
+    });
+  };
+
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (e) => {
+      scrollX.value = e.contentOffset.x;
+      const newIndex = Math.round(e.contentOffset.x / itemWidth);
+      const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
+      currentIndex.value = safeIndex;
     },
-    [initialIndex, items.length, visibleItemCount],
-  );
-
-  const handleOnScroll = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollX.value = event.contentOffset.x;
+    onMomentumEnd: (e) => {
+      const newIndex = Math.round(e.contentOffset.x / itemWidth);
+      const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
+      currentIndex.value = safeIndex;
+      runOnJS(handleOnChange)(safeIndex);
     },
   });
 
-  const handleOnPress = useCallback(
-    (newIndex: number) => {
-      const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
-      const x = PixelRatio.roundToNearestPixel(safeIndex * itemWidth);
-      scrollViewRef.current?.scrollTo({ x, y: 0, animated: true });
-    },
-    [items.length, itemWidth],
-  );
-
-  const handleOnChange = useCallback(
-    (index: number) => {
-      const item = items[index];
-      if (item) {
-        onChange?.(item.value, index);
-      }
-    },
-    [onChange, items],
-  );
-
-  const handleOnHapticFeedback = useCallback(
-    (index: number) => {
-      if (index !== lastHapticIndexRef.current && index >= 0 && index < items.length) {
-        lastHapticIndexRef.current = index;
-        onHapticFeedback?.();
-      }
-    },
-    [items.length, onHapticFeedback],
-  );
-
-  useAnimatedReaction(
-    () => {
-      if (scrollViewWidth === 0) {
-        return null;
-      }
-      const newIndex = Math.round(scrollX.value / itemWidth);
-      const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
-      currentIndex.value = safeIndex;
-      return safeIndex;
-    },
-    (safeIndex, prevIndex) => {
-      if (safeIndex !== null && safeIndex !== prevIndex) {
-        runOnJS(handleOnChange)(safeIndex);
-        runOnJS(handleOnHapticFeedback)(safeIndex);
-      }
-    },
-    [itemWidth, items.length, scrollViewWidth],
-  );
-
   return (
-    <Animated.ScrollView
-      ref={scrollViewRef}
-      horizontal
-      onLayout={handleOnLayout}
-      onScroll={handleOnScroll}
-      showsHorizontalScrollIndicator={false}
-      scrollEventThrottle={Platform.select({ ios: 16, android: 2 })}
-      decelerationRate={Platform.select({ ios: undefined, android: 'fast' })}
-      snapToOffsets={snapOffsets}
-      contentContainerStyle={{ paddingHorizontal: paddingSide }}
-      style={[styles.container, containerStyle]}
+    <Animated.FlatList
       {...props}
-    >
-      {items.map((item, index) => (
+      ref={listRef}
+      horizontal={true}
+      data={items}
+      keyExtractor={keyExtractor}
+      renderItem={({ item, index }) => (
         <PickerItem
-          key={`picker-item-${item.label}-${index}`}
           label={item.label}
           index={index}
-          currentIndex={currentIndex}
           itemWidth={itemWidth}
-          onPress={() => handleOnPress(index)}
-          itemContainerStyle={itemContainerStyle}
-          itemTextStyle={itemTextStyle}
-          selectedItemTextStyle={selectedItemTextStyle}
+          currentIndex={currentIndex}
+          onPress={() => scrollToIndex(index)}
+          focusedTransformStyle={focusedTransformStyle}
+          unfocusedTransformStyle={unfocusedTransformStyle}
+          focusedOpacityStyle={focusedOpacityStyle}
+          unfocusedOpacityStyle={unfocusedOpacityStyle}
+          pickerItemStyle={pickerItemStyle}
         />
-      ))}
-    </Animated.ScrollView>
+      )}
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}
+      decelerationRate={decelerationRate}
+      onLayout={(e) => {
+        if (typeof onLayout === 'function') {
+          onLayout(e);
+        }
+        setWidth(e.nativeEvent.layout.width);
+      }}
+      showsHorizontalScrollIndicator={showsHorizontalScrollIndicator}
+      snapToOffsets={snapOffsets}
+      contentContainerStyle={{ paddingHorizontal: paddingSide }}
+      getItemLayout={(_, index) => ({
+        length: itemWidth,
+        offset: itemWidth * index,
+        index,
+      })}
+      initialScrollIndex={initialScrollIndex}
+      initialNumToRender={initialNumToRender}
+      maxToRenderPerBatch={maxToRenderPerBatch}
+      removeClippedSubviews={removeClippedSubviews}
+      style={[styles.container, style]}
+    />
   );
 }
-
 interface PickerItemProps
-  extends Pick<HorizontalPickerProps, 'itemContainerStyle' | 'itemTextStyle' | 'selectedItemTextStyle'> {
-  label: PickerOption['label'];
+  extends Pick<
+    HorizontalPickerProps,
+    | 'focusedTransformStyle'
+    | 'unfocusedTransformStyle'
+    | 'focusedOpacityStyle'
+    | 'unfocusedOpacityStyle'
+    | 'pickerItemStyle'
+  > {
+  label: string;
   index: number;
-  currentIndex: SharedValue<number>;
   itemWidth: number;
+  currentIndex: SharedValue<number>;
   onPress: () => void;
 }
 
 function PickerItem({
   label,
   index,
-  currentIndex,
   itemWidth,
+  currentIndex,
   onPress,
-  itemContainerStyle,
-  itemTextStyle,
-  selectedItemTextStyle,
+  focusedTransformStyle,
+  unfocusedTransformStyle,
+  focusedOpacityStyle,
+  unfocusedOpacityStyle,
+  pickerItemStyle,
 }: PickerItemProps) {
-  const [isFocused, setIsFocused] = useState(false);
+  const isFocused = useDerivedValue(() => currentIndex.value === index);
 
-  useAnimatedReaction(
-    () => currentIndex.value === index,
-    (shouldBeFocused, isCurrentFocused) => {
-      if (shouldBeFocused !== isCurrentFocused) {
-        runOnJS(setIsFocused)(shouldBeFocused);
-      }
-    },
-    [index],
-  );
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: isFocused.value ? focusedTransformStyle : unfocusedTransformStyle,
+      opacity: isFocused.value ? focusedOpacityStyle : unfocusedOpacityStyle,
+    };
+  }, [index]);
 
   return (
     <Pressable onPress={onPress}>
-      <View style={[{ width: itemWidth }, styles.itemContainer, itemContainerStyle]}>
-        <Text style={isFocused ? [styles.itemTextSelected, selectedItemTextStyle] : [styles.itemText, itemTextStyle]}>
-          {label}
-        </Text>
+      <View style={[styles.itemContainer, { width: itemWidth }, pickerItemStyle]}>
+        <Animated.Text style={[styles.itemText, animatedStyle]}>{label}</Animated.Text>
       </View>
     </Pressable>
   );

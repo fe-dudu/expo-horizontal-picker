@@ -1,5 +1,27 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "files": {
+    "includes": ["**", "!**/node_modules", "!**/dist"]
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "identifierOrder": "lexicographic",
+            "groups": [
+              { "type": true, "source": [":NODE:", ":PACKAGE:"] },
+              { "type": false, "source": [":NODE:", ":PACKAGE:"] },
+              ":BLANK_LINE:",
+              { "type": true, "source": ["@/**", "./**", "*"] },
+              { "type": false, "source": ["@/**", "./**", "*"] }
+            ]
+          }
+        }
+      }
+    }
+  },
   "formatter": {
     "indentWidth": 2,
     "lineWidth": 120,
@@ -32,7 +54,9 @@
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error",
-        "useHookAtTopLevel": "error"
+        "useHookAtTopLevel": "error",
+        "noChildrenProp": "error",
+        "noReactPropAssignments": "error"
       },
       "performance": {
         "noBarrelFile": "error",
@@ -40,13 +64,15 @@
         "noDelete": "error"
       },
       "security": {
-        "noDangerouslySetInnerHtml": "error"
+        "noDangerouslySetInnerHtml": "error",
+        "noDangerouslySetInnerHtmlWithChildren": "error"
       },
       "style": {
         "noUselessElse": "error",
         "useCollapsedElseIf": "error",
         "noNonNullAssertion": "error",
         "useBlockStatements": "error",
+        "noNestedTernary": "error",
         "noNamespace": "error",
         "noYodaExpression": "error",
         "useConsistentBuiltinInstantiation": "error",
@@ -70,7 +96,8 @@
         "noExplicitAny": "error",
         "noRedeclare": "error",
         "noEvolvingTypes": "error",
-        "useNumberToFixedDigitsArgument": "error"
+        "useNumberToFixedDigitsArgument": "error",
+        "noUnknownAtRules": "off"
       }
     }
   }

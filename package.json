@@ -32,7 +32,7 @@
   "license": "MIT",
   "homepage": "https://github.com/fe-dudu/expo-horizontal-picker#readme",
   "devDependencies": {
-    "@biomejs/biome": "^2.0.6",
+    "@biomejs/biome": "^2.3.2",
     "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.29.5",
     "@commitlint/cli": "^19.8.1",
