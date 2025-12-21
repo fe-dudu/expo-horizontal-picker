@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.1.9
+
+### Patch Changes
+
+- [`877c8bd`](https://github.com/fe-dudu/expo-horizontal-picker/commit/877c8bdceda31fd7980d78be780e2186c9848c46) Thanks [@fe-dudu](https://github.com/fe-dudu)! - add pickerItemTextStyle prop
+
 ## 0.1.8
 
 ### Patch Changes
