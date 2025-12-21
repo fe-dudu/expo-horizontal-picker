@@ -24,7 +24,10 @@
     "ExpoHorizontalPicker",
     "react-native-horizontal-picker"
   ],
-  "repository": "https://github.com/fe-dudu/expo-horizontal-picker",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fe-dudu/expo-horizontal-picker.git"
+  },
   "bugs": {
     "url": "https://github.com/fe-dudu/expo-horizontal-picker/issues"
   },
