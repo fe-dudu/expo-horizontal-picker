@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.1.7
+
+### Patch Changes
+
+- [`abe0e27`](https://github.com/fe-dudu/expo-horizontal-picker/commit/abe0e27594179cecc6044674fc9ed8aa3e0d369a) Thanks [@fe-dudu](https://github.com/fe-dudu)! - refactor: migrate to FlatList and improve animation API
+
 ## 0.1.6
 
 ### Patch Changes
