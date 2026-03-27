@@ -46,7 +46,7 @@ export default function App() {
             label: `${i + 1}`,
             value: i + 1,
           }))}
-          initialScrollIndex={500}
+          initialScrollIndex={499}
           visibleItemCount={7}
         />
 
@@ -88,6 +88,18 @@ const styles = {
   },
 };
 ```
+
+## 📱 Example App
+
+A runnable Expo example app is included in [`example`](./example). It mirrors the README demo with four picker configurations and live selected-value feedback.
+
+```bash
+cd example
+yarn
+yarn start
+```
+
+The example app resolves `expo-horizontal-picker` to this repository's local `src` directory through Metro, so you can iterate on the library and see changes immediately in the app.
 
 ## 🎨 Customization Example
 

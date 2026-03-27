@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "example",
+    "slug": "example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "example",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
