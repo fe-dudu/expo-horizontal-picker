@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.2.0
+
+### Minor Changes
+
+- [`fee1851`](https://github.com/fe-dudu/expo-horizontal-picker/commit/fee185112238c1435335022f270886be73be4a47) Thanks [@fe-dudu](https://github.com/fe-dudu)! - feat: add limited picker ref methods and document usage
+
 ## 0.1.9
 
 ### Patch Changes
