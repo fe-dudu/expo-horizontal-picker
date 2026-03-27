@@ -30,14 +30,22 @@ This package requires [`react-native-reanimated`](https://docs.expo.dev/versions
 npm install expo-horizontal-picker react-native-reanimated
 ```
 
+`ref` support uses React 19's ref-as-prop model, so install this package in a React 19 app.
+
 Make sure to follow the additional setup instructions for Reanimated in the [official docs](https://docs.expo.dev/versions/latest/sdk/reanimated/#installation).
 
 ## 🎬 Demo
+
+![expo-horizontal-picker demo](https://raw.githubusercontent.com/fe-dudu/expo-horizontal-picker/main/assets/demo.gif)
+
 ```ts
-import { HorizontalPicker } from 'expo-horizontal-picker';
-import { View } from 'react-native';
+import { useRef } from 'react';
+import { HorizontalPicker, type HorizontalPickerRef } from 'expo-horizontal-picker';
+import { Button, View } from 'react-native';
 
 export default function App() {
+  const pickerRef = useRef<HorizontalPickerRef | null>(null);
+
   return (
     <View style={styles.container}>
       <View>
@@ -64,8 +72,14 @@ export default function App() {
             label: `${i + 1}h`,
             value: i + 1,
           }))}
+          ref={pickerRef}
           initialScrollIndex={11}
           visibleItemCount={3}
+        />
+
+        <Button
+          title="Jump to 24h"
+          onPress={() => pickerRef.current?.scrollToEnd({ animated: true })}
         />
 
         <HorizontalPicker
@@ -89,9 +103,30 @@ const styles = {
 };
 ```
 
+## Ref Usage
+
+Pass a ref when you need the picker scroll methods: `scrollToEnd`, `scrollToIndex`, `scrollToItem`, or `scrollToOffset`.
+
+```ts
+import { useRef } from 'react';
+import { Button } from 'react-native';
+import { HorizontalPicker, type HorizontalPickerRef } from 'expo-horizontal-picker';
+
+export default function RefExample() {
+  const pickerRef = useRef<HorizontalPickerRef | null>(null);
+
+  return (
+    <>
+      <HorizontalPicker ref={pickerRef} items={items} />
+      <Button title="Jump to start" onPress={() => pickerRef.current?.scrollToOffset({ offset: 0, animated: true })} />
+    </>
+  );
+}
+```
+
 ## 📱 Example App
 
-A runnable Expo example app is included in [`example`](./example). It mirrors the README demo with four picker configurations and live selected-value feedback.
+A runnable Expo example app is included in [`example`](./example). It mirrors the README demo and includes ref-driven scroll controls.
 
 ```bash
 cd example
@@ -144,6 +179,7 @@ The component extends `FlatListPropsWithLayout`, so you can also pass any valid 
 - `initialNumToRender` (default: `15`)
 - `maxToRenderPerBatch` (default: `15`)
 - `removeClippedSubviews` (default: `true`)
+- `ref` to call `scrollToEnd`, `scrollToIndex`, `scrollToItem`, and `scrollToOffset`
 
 ## ⚡ Performance Notes
 

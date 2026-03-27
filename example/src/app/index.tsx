@@ -1,9 +1,14 @@
-import { HorizontalPicker } from 'expo-horizontal-picker';
-import { type ReactNode, useState } from 'react';
+import { HorizontalPicker, type HorizontalPickerRef, type PickerOption } from 'expo-horizontal-picker';
+import { type ReactNode, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const numberItems = Array.from({ length: 1000 }, (_, i) => ({
+type PickerValues = {
+  index: number;
+  value: PickerOption['value'];
+};
+
+const numberItems = Array.from({ length: 600 }, (_, i) => ({
   label: `${i + 1}`,
   value: i + 1,
 }));
@@ -23,11 +28,11 @@ const largeNumberItems = Array.from({ length: 5 }, (_, i) => ({
   value: (i + 1) * 10000,
 }));
 
-function PickerSection({ value, children }: { value: string | number; children: ReactNode }) {
+function PickerSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionValue}>Selected: {value}</Text>
+        <Text style={styles.sectionTitle}>{title}</Text>
       </View>
       {children}
     </View>
@@ -35,10 +40,24 @@ function PickerSection({ value, children }: { value: string | number; children: 
 }
 
 export default function HomeScreen() {
-  const [selectedNumber, setSelectedNumber] = useState(numberItems[499]?.value ?? 0);
-  const [selectedThousand, setSelectedThousand] = useState(thousandItems[9]?.value ?? 0);
-  const [selectedHour, setSelectedHour] = useState(hourItems[11]?.value ?? 0);
-  const [selectedLargeNumber, setSelectedLargeNumber] = useState(largeNumberItems[2]?.value ?? 0);
+  const sectionFirstPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const sectionSecondPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const [selectedFirst, setSelectedFirst] = useState<PickerValues>({
+    index: 499,
+    value: numberItems[499].value,
+  });
+  const [selectedSecond, setSelectedSecond] = useState<PickerValues>({
+    index: 9,
+    value: thousandItems[9].value,
+  });
+  const [selectedThird, setSelectedThird] = useState<PickerValues>({
+    index: 11,
+    value: hourItems[11].value,
+  });
+  const [selectedFourth, setSelectedFourth] = useState<PickerValues>({
+    index: 2,
+    value: largeNumberItems[2].value,
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,39 +66,79 @@ export default function HomeScreen() {
           <Text style={styles.title}>expo-horizontal-picker</Text>
         </View>
 
-        <PickerSection value={selectedNumber}>
+        <PickerSection title={`Sync · 7 visible → ${selectedFirst.value}`}>
           <HorizontalPicker
+            ref={sectionFirstPickerRef}
             items={numberItems}
             initialScrollIndex={499}
             visibleItemCount={7}
-            onChange={(value) => setSelectedNumber(Number(value))}
+            onChange={(value, index) => {
+              setSelectedFirst({
+                index: index,
+                value: value,
+              });
+              sectionSecondPickerRef.current?.scrollToIndex({ index: index, animated: true });
+            }}
+            pickerItemStyle={styles.pickerItem}
+          />
+          <HorizontalPicker
+            ref={sectionSecondPickerRef}
+            items={numberItems}
+            initialScrollIndex={499}
+            visibleItemCount={7}
+            onChange={(value, index) => {
+              setSelectedFirst({
+                index: index,
+                value: value,
+              });
+              sectionFirstPickerRef.current?.scrollToIndex({ index: index, animated: true });
+            }}
+            pickerItemStyle={styles.pickerItem}
           />
         </PickerSection>
 
-        <PickerSection value={selectedThousand}>
+        <PickerSection title={`5 visible → ${selectedSecond.value}`}>
           <HorizontalPicker
             items={thousandItems}
             initialScrollIndex={9}
             visibleItemCount={5}
-            onChange={(value) => setSelectedThousand(Number(value))}
+            onChange={(value, index) =>
+              setSelectedSecond({
+                index: index,
+                value: value,
+              })
+            }
+            pickerItemStyle={styles.pickerItem}
           />
         </PickerSection>
 
-        <PickerSection value={selectedHour}>
+        <PickerSection title={`3 visible → ${selectedThird.value}`}>
           <HorizontalPicker
             items={hourItems}
             initialScrollIndex={11}
             visibleItemCount={3}
-            onChange={(value) => setSelectedHour(Number(value))}
+            onChange={(value, index) =>
+              setSelectedThird({
+                index: index,
+                value: value,
+              })
+            }
+            pickerItemStyle={styles.pickerItem}
           />
         </PickerSection>
 
-        <PickerSection value={selectedLargeNumber}>
+        <PickerSection title={`1 visible → ${selectedFourth.value}`}>
           <HorizontalPicker
             items={largeNumberItems}
             initialScrollIndex={2}
             visibleItemCount={1}
-            onChange={(value) => setSelectedLargeNumber(Number(value))}
+            onChange={(value, index) =>
+              setSelectedFourth({
+                index: index,
+                value: value,
+              })
+            }
+            pickerItemStyle={styles.pickerItem}
           />
         </PickerSection>
       </ScrollView>
@@ -94,7 +153,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingVertical: 24,
+    paddingVertical: 12,
     gap: 24,
   },
   header: {
@@ -112,22 +171,20 @@ const styles = StyleSheet.create({
   },
   section: {
     backgroundColor: '#ffffff',
-    borderRadius: 20,
+    borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 12,
-    gap: 4,
+    paddingVertical: 10,
+    gap: 2,
   },
   sectionHeader: {
     gap: 4,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '700',
     color: '#111111',
   },
-  sectionValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666666',
+  pickerItem: {
+    paddingVertical: 20,
   },
 });

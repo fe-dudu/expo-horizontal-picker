@@ -1,5 +1,13 @@
-import { useMemo, useRef, useState } from 'react';
-import { PixelRatio, Pressable, StyleSheet, type TextStyle, View, type ViewStyle } from 'react-native';
+import { type Ref, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  type FlatList as NativeFlatList,
+  PixelRatio,
+  Pressable,
+  StyleSheet,
+  type TextStyle,
+  View,
+  type ViewStyle,
+} from 'react-native';
 import Animated, {
   type FlatListPropsWithLayout,
   type SharedValue,
@@ -9,11 +17,6 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated';
-
-export interface PickerOption {
-  label: string;
-  value: string | number;
-}
 
 interface FlatListProps
   extends Omit<
@@ -29,7 +32,30 @@ interface FlatListProps
     | 'getItemLayout'
   > {}
 
+export interface PickerOption {
+  label: string;
+  value: string | number;
+}
+
+export interface HorizontalPickerRef {
+  scrollToEnd: (params?: { animated?: boolean | null }) => void;
+  scrollToIndex: (params: {
+    animated?: boolean | null;
+    index: number;
+    viewOffset?: number;
+    viewPosition?: number;
+  }) => void;
+  scrollToItem: (params: {
+    animated?: boolean | null;
+    item: PickerOption;
+    viewOffset?: number;
+    viewPosition?: number;
+  }) => void;
+  scrollToOffset: (params: { animated?: boolean | null; offset: number }) => void;
+}
+
 export interface HorizontalPickerProps extends FlatListProps {
+  ref?: Ref<HorizontalPickerRef | null>;
   items: PickerOption[];
   initialScrollIndex?: number;
   visibleItemCount?: number;
@@ -43,6 +69,7 @@ export interface HorizontalPickerProps extends FlatListProps {
 }
 
 export function HorizontalPicker({
+  ref,
   items,
   initialScrollIndex = 0,
   visibleItemCount = 7,
@@ -64,10 +91,9 @@ export function HorizontalPicker({
   style,
   ...props
 }: HorizontalPickerProps) {
-  const listRef = useRef<Animated.FlatList<PickerOption>>(null);
+  const listRef = useRef<NativeFlatList<PickerOption> | null>(null);
   const [width, setWidth] = useState<number>(0);
 
-  const scrollX = useSharedValue<number>(0);
   const currentIndex = useSharedValue<number>(initialScrollIndex);
 
   const { itemWidth, paddingSide } = useMemo(() => {
@@ -99,7 +125,6 @@ export function HorizontalPicker({
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
-      scrollX.value = e.contentOffset.x;
       const newIndex = Math.round(e.contentOffset.x / itemWidth);
       const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
       currentIndex.value = safeIndex;
@@ -111,6 +136,17 @@ export function HorizontalPicker({
       runOnJS(handleOnChange)(safeIndex);
     },
   });
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToEnd: (params) => listRef.current?.scrollToEnd(params),
+      scrollToIndex: (params) => listRef.current?.scrollToIndex(params),
+      scrollToItem: (params) => listRef.current?.scrollToItem(params),
+      scrollToOffset: (params) => listRef.current?.scrollToOffset(params),
+    }),
+    [],
+  );
 
   return (
     <Animated.FlatList
@@ -214,7 +250,6 @@ const styles = StyleSheet.create({
   itemContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 60,
   },
   itemText: {
     fontSize: 13,
