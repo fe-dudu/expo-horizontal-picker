@@ -39,87 +39,114 @@ Make sure to follow the additional setup instructions for Reanimated in the [off
 ![expo-horizontal-picker demo](https://raw.githubusercontent.com/fe-dudu/expo-horizontal-picker/main/assets/demo.gif)
 
 ```ts
-import { useRef } from 'react';
-import { HorizontalPicker, type HorizontalPickerRef } from 'expo-horizontal-picker';
-import { Button, View } from 'react-native';
+import { HorizontalPicker, type HorizontalPickerRef, type PickerValues } from 'expo-horizontal-picker';
+import { useRef, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+
+const numberItems = Array.from({ length: 600 }, (_, i) => ({
+  label: `${i + 1}`,
+  value: i + 1,
+}));
 
 export default function App() {
-  const pickerRef = useRef<HorizontalPickerRef | null>(null);
+  const firstPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const secondPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const [selected, setSelected] = useState<PickerValues>({
+    index: 499,
+    value: numberItems[499].value,
+  });
 
   return (
     <View style={styles.container}>
-      <View>
-        <HorizontalPicker
-          items={Array.from({ length: 1000 }, (_, i) => ({
-            label: `${i + 1}`,
-            value: i + 1,
-          }))}
-          initialScrollIndex={499}
-          visibleItemCount={7}
-        />
+      <Text style={styles.title}>Sync · 7 visible → {selected.value}</Text>
 
-        <HorizontalPicker
-          items={Array.from({ length: 20 }, (_, i) => ({
-            label: `${i + 1}k`,
-            value: (i + 1) * 1000,
-          }))}
-          initialScrollIndex={9}
-          visibleItemCount={5}
-        />
+      <HorizontalPicker
+        ref={firstPickerRef}
+        items={numberItems}
+        initialScrollIndex={499}
+        visibleItemCount={7}
+        onChange={(value, index) => {
+          setSelected({ index, value });
+          secondPickerRef.current?.scrollToIndex({ index, animated: true });
+        }}
+        pickerItemStyle={styles.pickerItem}
+      />
 
-        <HorizontalPicker
-          items={Array.from({ length: 24 }, (_, i) => ({
-            label: `${i + 1}h`,
-            value: i + 1,
-          }))}
-          ref={pickerRef}
-          initialScrollIndex={11}
-          visibleItemCount={3}
-        />
-
-        <Button
-          title="Jump to 24h"
-          onPress={() => pickerRef.current?.scrollToEnd({ animated: true })}
-        />
-
-        <HorizontalPicker
-          items={Array.from({ length: 5 }, (_, i) => ({
-            label: `${(i + 1) * 10000}`,
-            value: (i + 1) * 10000,
-          }))}
-          initialScrollIndex={2}
-          visibleItemCount={1}
-        />
-      </View>
+      <HorizontalPicker
+        ref={secondPickerRef}
+        items={numberItems}
+        initialScrollIndex={499}
+        visibleItemCount={7}
+        onChange={(value, index) => {
+          setSelected({ index, value });
+          firstPickerRef.current?.scrollToIndex({ index, animated: true });
+        }}
+        pickerItemStyle={styles.pickerItem}
+      />
     </View>
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eee',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#eeeeee',
   },
-};
+  title: {
+    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111111',
+  },
+  pickerItem: {
+    paddingVertical: 20,
+  },
+});
 ```
 
 ## Ref Usage
 
 Pass a ref when you need the picker scroll methods: `scrollToEnd`, `scrollToIndex`, `scrollToItem`, or `scrollToOffset`.
 
+The picker is intentionally stateful around its own scroll position. A ref is meant for imperative coordination, such as keeping two pickers visually in sync or jumping to a specific item from another control. If you choose that pattern, keep any mirrored app state in the parent and update it alongside the ref call, just like the example below.
+
 ```ts
-import { useRef } from 'react';
-import { Button } from 'react-native';
-import { HorizontalPicker, type HorizontalPickerRef } from 'expo-horizontal-picker';
+import { HorizontalPicker, type HorizontalPickerRef, type PickerValues } from 'expo-horizontal-picker';
+import { useRef, useState } from 'react';
+import { Text, View } from 'react-native';
 
 export default function RefExample() {
-  const pickerRef = useRef<HorizontalPickerRef | null>(null);
+  const firstPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const secondPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const [selected, setSelected] = useState<PickerValues>({
+    index: 0,
+    value: items[0].value,
+  });
 
   return (
-    <>
-      <HorizontalPicker ref={pickerRef} items={items} />
-      <Button title="Jump to start" onPress={() => pickerRef.current?.scrollToOffset({ offset: 0, animated: true })} />
-    </>
+    <View>
+      <Text>Selected: {selected.value}</Text>
+
+      <HorizontalPicker
+        ref={firstPickerRef}
+        items={items}
+        onChange={(value, index) => {
+          setSelected({ index, value });
+          secondPickerRef.current?.scrollToIndex({ index, animated: true });
+        }}
+      />
+
+      <HorizontalPicker
+        ref={secondPickerRef}
+        items={items}
+        onChange={(value, index) => {
+          setSelected({ index, value });
+          firstPickerRef.current?.scrollToIndex({ index, animated: true });
+        }}
+      />
+    </View>
   );
 }
 ```

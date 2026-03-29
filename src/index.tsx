@@ -37,6 +37,11 @@ export interface PickerOption {
   value: string | number;
 }
 
+export interface PickerValues {
+  index: number;
+  value: PickerOption['value'];
+}
+
 export interface HorizontalPickerRef {
   scrollToEnd: (params?: { animated?: boolean | null }) => void;
   scrollToIndex: (params: {

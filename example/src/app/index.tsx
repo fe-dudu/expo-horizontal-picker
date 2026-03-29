@@ -1,12 +1,7 @@
-import { HorizontalPicker, type HorizontalPickerRef, type PickerOption } from 'expo-horizontal-picker';
+import { HorizontalPicker, type HorizontalPickerRef, type PickerValues } from 'expo-horizontal-picker';
 import { type ReactNode, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-type PickerValues = {
-  index: number;
-  value: PickerOption['value'];
-};
 
 const numberItems = Array.from({ length: 600 }, (_, i) => ({
   label: `${i + 1}`,
@@ -42,19 +37,19 @@ function PickerSection({ title, children }: { title: string; children: ReactNode
 export default function HomeScreen() {
   const sectionFirstPickerRef = useRef<HorizontalPickerRef | null>(null);
   const sectionSecondPickerRef = useRef<HorizontalPickerRef | null>(null);
-  const [selectedFirst, setSelectedFirst] = useState<PickerValues>({
+  const [_selectedFirst, setSelectedFirst] = useState<PickerValues>({
     index: 499,
     value: numberItems[499].value,
   });
-  const [selectedSecond, setSelectedSecond] = useState<PickerValues>({
+  const [_selectedSecond, setSelectedSecond] = useState<PickerValues>({
     index: 9,
     value: thousandItems[9].value,
   });
-  const [selectedThird, setSelectedThird] = useState<PickerValues>({
+  const [_selectedThird, setSelectedThird] = useState<PickerValues>({
     index: 11,
     value: hourItems[11].value,
   });
-  const [selectedFourth, setSelectedFourth] = useState<PickerValues>({
+  const [_selectedFourth, setSelectedFourth] = useState<PickerValues>({
     index: 2,
     value: largeNumberItems[2].value,
   });
@@ -66,7 +61,7 @@ export default function HomeScreen() {
           <Text style={styles.title}>expo-horizontal-picker</Text>
         </View>
 
-        <PickerSection title={`Sync · 7 visible → ${selectedFirst.value}`}>
+        <PickerSection title="7 visible items (Sync)">
           <HorizontalPicker
             ref={sectionFirstPickerRef}
             items={numberItems}
@@ -97,7 +92,7 @@ export default function HomeScreen() {
           />
         </PickerSection>
 
-        <PickerSection title={`5 visible → ${selectedSecond.value}`}>
+        <PickerSection title="5 visible items">
           <HorizontalPicker
             items={thousandItems}
             initialScrollIndex={9}
@@ -112,7 +107,7 @@ export default function HomeScreen() {
           />
         </PickerSection>
 
-        <PickerSection title={`3 visible → ${selectedThird.value}`}>
+        <PickerSection title="3 visible items">
           <HorizontalPicker
             items={hourItems}
             initialScrollIndex={11}
@@ -127,7 +122,7 @@ export default function HomeScreen() {
           />
         </PickerSection>
 
-        <PickerSection title={`1 visible → ${selectedFourth.value}`}>
+        <PickerSection title="1 visible item">
           <HorizontalPicker
             items={largeNumberItems}
             initialScrollIndex={2}
