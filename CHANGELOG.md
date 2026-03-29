@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.2.1
+
+### Patch Changes
+
+- [`e3d9fdd`](https://github.com/fe-dudu/expo-horizontal-picker/commit/e3d9fdd363e4571b03505346a67b6d832437538b) Thanks [@fe-dudu](https://github.com/fe-dudu)! - export PickerValues from the library API
+
 ## 0.2.0
 
 ### Minor Changes
