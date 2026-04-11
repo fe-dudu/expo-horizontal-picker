@@ -1,5 +1,11 @@
 # expo-horizontal-picker
 
+## 0.3.0
+
+### Minor Changes
+
+- [`8f66be6`](https://github.com/fe-dudu/expo-horizontal-picker/commit/8f66be6c736b28228eb0de4c39ef02b57ba708c5) Thanks [@fe-dudu](https://github.com/fe-dudu)! - feat: require containerHeight and stabilize initial picker layout
+
 ## 0.2.1
 
 ### Patch Changes
