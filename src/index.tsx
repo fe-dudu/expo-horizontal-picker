@@ -2,6 +2,7 @@ import { type Ref, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import {
   type FlatList as NativeFlatList,
   PixelRatio,
+  Platform,
   Pressable,
   StyleSheet,
   type TextStyle,
@@ -62,6 +63,7 @@ export interface HorizontalPickerRef {
 export interface HorizontalPickerProps extends FlatListProps {
   ref?: Ref<HorizontalPickerRef | null>;
   items: PickerOption[];
+  containerHeight: number;
   initialScrollIndex?: number;
   visibleItemCount?: number;
   onChange?: (value: PickerOption['value'], index: number) => void;
@@ -76,6 +78,7 @@ export interface HorizontalPickerProps extends FlatListProps {
 export function HorizontalPicker({
   ref,
   items,
+  containerHeight,
   initialScrollIndex = 0,
   visibleItemCount = 7,
   onChange,
@@ -86,7 +89,7 @@ export function HorizontalPicker({
   showsHorizontalScrollIndicator = false,
   initialNumToRender = 15,
   maxToRenderPerBatch = 15,
-  removeClippedSubviews = true,
+  removeClippedSubviews = Platform.OS !== 'android',
   focusedTransformStyle = [{ scale: 1.15 }],
   unfocusedTransformStyle = [{ scale: 1 }],
   focusedOpacityStyle = 1,
@@ -102,15 +105,32 @@ export function HorizontalPicker({
   const currentIndex = useSharedValue<number>(initialScrollIndex);
 
   const { itemWidth, paddingSide } = useMemo(() => {
+    if (width <= 0) {
+      return {
+        itemWidth: 0,
+        paddingSide: 0,
+      };
+    }
+
     const itemWidth = PixelRatio.roundToNearestPixel(width / visibleItemCount);
     const paddingSide = PixelRatio.roundToNearestPixel(width / 2 - itemWidth / 2);
     return {
       itemWidth: itemWidth,
       paddingSide: paddingSide,
     };
-  }, [width, visibleItemCount]);
+  }, [visibleItemCount, width]);
+
+  const containerMinHeight = useMemo(() => {
+    if (!Number.isFinite(containerHeight)) {
+      return 1;
+    }
+    return Math.max(containerHeight, 1);
+  }, [containerHeight]);
 
   const snapOffsets = useMemo(() => {
+    if (itemWidth <= 0) {
+      return [];
+    }
     return items.map((_, index) => PixelRatio.roundToNearestPixel(index * itemWidth));
   }, [items, itemWidth]);
 
@@ -122,6 +142,9 @@ export function HorizontalPicker({
   };
 
   const scrollToIndex = (index: number) => {
+    if (itemWidth <= 0) {
+      return;
+    }
     listRef.current?.scrollToOffset({
       offset: index * itemWidth,
       animated: true,
@@ -130,11 +153,17 @@ export function HorizontalPicker({
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
+      if (itemWidth <= 0) {
+        return;
+      }
       const newIndex = Math.round(e.contentOffset.x / itemWidth);
       const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
       currentIndex.value = safeIndex;
     },
     onMomentumEnd: (e) => {
+      if (itemWidth <= 0) {
+        return;
+      }
       const newIndex = Math.round(e.contentOffset.x / itemWidth);
       const safeIndex = Math.max(0, Math.min(items.length - 1, newIndex));
       currentIndex.value = safeIndex;
@@ -154,50 +183,61 @@ export function HorizontalPicker({
   );
 
   return (
-    <Animated.FlatList
-      {...props}
-      ref={listRef}
-      horizontal={true}
-      data={items}
-      keyExtractor={keyExtractor}
-      renderItem={({ item, index }) => (
-        <PickerItem
-          label={item.label}
-          index={index}
-          itemWidth={itemWidth}
-          currentIndex={currentIndex}
-          onPress={() => scrollToIndex(index)}
-          focusedTransformStyle={focusedTransformStyle}
-          unfocusedTransformStyle={unfocusedTransformStyle}
-          focusedOpacityStyle={focusedOpacityStyle}
-          unfocusedOpacityStyle={unfocusedOpacityStyle}
-          pickerItemStyle={pickerItemStyle}
-          pickerItemTextStyle={pickerItemTextStyle}
+    <View
+      style={[styles.container, { minHeight: containerMinHeight }]}
+      onLayout={(e) => {
+        const nextWidth = e.nativeEvent.layout.width;
+        if (nextWidth <= 0) {
+          return;
+        }
+        if (nextWidth === width) {
+          return;
+        }
+        setWidth(nextWidth);
+      }}
+    >
+      {width > 0 && (
+        <Animated.FlatList
+          {...props}
+          ref={listRef}
+          horizontal={true}
+          data={items}
+          keyExtractor={keyExtractor}
+          renderItem={({ item, index }) => (
+            <PickerItem
+              label={item.label}
+              index={index}
+              itemWidth={itemWidth}
+              currentIndex={currentIndex}
+              onPress={() => scrollToIndex(index)}
+              focusedTransformStyle={focusedTransformStyle}
+              unfocusedTransformStyle={unfocusedTransformStyle}
+              focusedOpacityStyle={focusedOpacityStyle}
+              unfocusedOpacityStyle={unfocusedOpacityStyle}
+              pickerItemStyle={pickerItemStyle}
+              pickerItemTextStyle={pickerItemTextStyle}
+            />
+          )}
+          onScroll={onScroll}
+          scrollEventThrottle={scrollEventThrottle}
+          decelerationRate={decelerationRate}
+          onLayout={onLayout}
+          showsHorizontalScrollIndicator={showsHorizontalScrollIndicator}
+          snapToOffsets={snapOffsets}
+          contentContainerStyle={{ paddingHorizontal: paddingSide }}
+          getItemLayout={(_, index) => ({
+            length: itemWidth,
+            offset: itemWidth * index,
+            index,
+          })}
+          initialScrollIndex={initialScrollIndex}
+          initialNumToRender={initialNumToRender}
+          maxToRenderPerBatch={maxToRenderPerBatch}
+          removeClippedSubviews={removeClippedSubviews}
+          style={style}
         />
       )}
-      onScroll={onScroll}
-      scrollEventThrottle={scrollEventThrottle}
-      decelerationRate={decelerationRate}
-      onLayout={(e) => {
-        if (typeof onLayout === 'function') {
-          onLayout(e);
-        }
-        setWidth(e.nativeEvent.layout.width);
-      }}
-      showsHorizontalScrollIndicator={showsHorizontalScrollIndicator}
-      snapToOffsets={snapOffsets}
-      contentContainerStyle={{ paddingHorizontal: paddingSide }}
-      getItemLayout={(_, index) => ({
-        length: itemWidth,
-        offset: itemWidth * index,
-        index,
-      })}
-      initialScrollIndex={initialScrollIndex}
-      initialNumToRender={initialNumToRender}
-      maxToRenderPerBatch={maxToRenderPerBatch}
-      removeClippedSubviews={removeClippedSubviews}
-      style={[styles.container, style]}
-    />
+    </View>
   );
 }
 interface PickerItemProps

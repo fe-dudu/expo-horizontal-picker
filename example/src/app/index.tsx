@@ -23,6 +23,8 @@ const largeNumberItems = Array.from({ length: 5 }, (_, i) => ({
   value: (i + 1) * 10000,
 }));
 
+const pickerContainerHeight = 53;
+
 function PickerSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View style={styles.section}>
@@ -35,15 +37,19 @@ function PickerSection({ title, children }: { title: string; children: ReactNode
 }
 
 export default function HomeScreen() {
-  const sectionFirstPickerRef = useRef<HorizontalPickerRef | null>(null);
-  const sectionSecondPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const firstPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const secondPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const thirdPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const fourthPickerRef = useRef<HorizontalPickerRef | null>(null);
+  const fifthPickerRef = useRef<HorizontalPickerRef | null>(null);
+  
   const [_selectedFirst, setSelectedFirst] = useState<PickerValues>({
     index: 499,
     value: numberItems[499].value,
   });
   const [_selectedSecond, setSelectedSecond] = useState<PickerValues>({
-    index: 9,
-    value: thousandItems[9].value,
+    index: 499,
+    value: numberItems[499].value,
   });
   const [_selectedThird, setSelectedThird] = useState<PickerValues>({
     index: 11,
@@ -52,6 +58,10 @@ export default function HomeScreen() {
   const [_selectedFourth, setSelectedFourth] = useState<PickerValues>({
     index: 2,
     value: largeNumberItems[2].value,
+  });
+  const [_selectedFifth, setSelectedFifth] = useState<PickerValues>({
+    index: 0,
+    value: thousandItems[0].value,
   });
 
   return (
@@ -63,8 +73,9 @@ export default function HomeScreen() {
 
         <PickerSection title="7 visible items (Sync)">
           <HorizontalPicker
-            ref={sectionFirstPickerRef}
+            ref={firstPickerRef}
             items={numberItems}
+            containerHeight={pickerContainerHeight}
             initialScrollIndex={499}
             visibleItemCount={7}
             onChange={(value, index) => {
@@ -72,21 +83,28 @@ export default function HomeScreen() {
                 index: index,
                 value: value,
               });
-              sectionSecondPickerRef.current?.scrollToIndex({ index: index, animated: true });
+              secondPickerRef.current?.scrollToIndex({
+                index: index,
+                animated: true,
+              });
             }}
             pickerItemStyle={styles.pickerItem}
           />
           <HorizontalPicker
-            ref={sectionSecondPickerRef}
+            ref={secondPickerRef}
             items={numberItems}
+            containerHeight={pickerContainerHeight}
             initialScrollIndex={499}
             visibleItemCount={7}
             onChange={(value, index) => {
-              setSelectedFirst({
+              setSelectedSecond({
                 index: index,
                 value: value,
               });
-              sectionFirstPickerRef.current?.scrollToIndex({ index: index, animated: true });
+              firstPickerRef.current?.scrollToIndex({
+                index: index,
+                animated: true,
+              });
             }}
             pickerItemStyle={styles.pickerItem}
           />
@@ -94,24 +112,11 @@ export default function HomeScreen() {
 
         <PickerSection title="5 visible items">
           <HorizontalPicker
+            ref={thirdPickerRef}
             items={thousandItems}
+            containerHeight={pickerContainerHeight}
             initialScrollIndex={9}
             visibleItemCount={5}
-            onChange={(value, index) =>
-              setSelectedSecond({
-                index: index,
-                value: value,
-              })
-            }
-            pickerItemStyle={styles.pickerItem}
-          />
-        </PickerSection>
-
-        <PickerSection title="3 visible items">
-          <HorizontalPicker
-            items={hourItems}
-            initialScrollIndex={11}
-            visibleItemCount={3}
             onChange={(value, index) =>
               setSelectedThird({
                 index: index,
@@ -122,13 +127,32 @@ export default function HomeScreen() {
           />
         </PickerSection>
 
+        <PickerSection title="3 visible items">
+          <HorizontalPicker
+            ref={fourthPickerRef}
+            items={hourItems}
+            containerHeight={pickerContainerHeight}
+            initialScrollIndex={11}
+            visibleItemCount={3}
+            onChange={(value, index) =>
+              setSelectedFourth({
+                index: index,
+                value: value,
+              })
+            }
+            pickerItemStyle={styles.pickerItem}
+          />
+        </PickerSection>
+
         <PickerSection title="1 visible item">
           <HorizontalPicker
+            ref={fifthPickerRef}
             items={largeNumberItems}
+            containerHeight={pickerContainerHeight}
             initialScrollIndex={2}
             visibleItemCount={1}
             onChange={(value, index) =>
-              setSelectedFourth({
+              setSelectedFifth({
                 index: index,
                 value: value,
               })

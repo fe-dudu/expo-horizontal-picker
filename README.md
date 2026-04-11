@@ -39,65 +39,117 @@ Make sure to follow the additional setup instructions for Reanimated in the [off
 ![expo-horizontal-picker demo](https://raw.githubusercontent.com/fe-dudu/expo-horizontal-picker/main/assets/demo.gif)
 
 ```ts
-import { HorizontalPicker, type HorizontalPickerRef, type PickerValues } from 'expo-horizontal-picker';
+import { HorizontalPicker, type HorizontalPickerRef } from 'expo-horizontal-picker';
 import { useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const numberItems = Array.from({ length: 600 }, (_, i) => ({
   label: `${i + 1}`,
   value: i + 1,
 }));
 
+const thousandItems = Array.from({ length: 20 }, (_, i) => ({
+  label: `${i + 1}k`,
+  value: (i + 1) * 1000,
+}));
+
+const hourItems = Array.from({ length: 24 }, (_, i) => ({
+  label: `${i + 1}h`,
+  value: i + 1,
+}));
+
+const largeNumberItems = Array.from({ length: 5 }, (_, i) => ({
+  label: `${(i + 1) * 10000}`,
+  value: (i + 1) * 10000,
+}));
+
+const pickerContainerHeight = 53;
+
 export default function App() {
   const firstPickerRef = useRef<HorizontalPickerRef | null>(null);
   const secondPickerRef = useRef<HorizontalPickerRef | null>(null);
-  const [selected, setSelected] = useState<PickerValues>({
-    index: 499,
-    value: numberItems[499].value,
-  });
+
+  const [, setSelectedFirst] = useState({ index: 499, value: numberItems[499].value });
+  const [, setSelectedSecond] = useState({ index: 499, value: numberItems[499].value });
+  const [, setSelectedThird] = useState({ index: 9, value: thousandItems[9].value });
+  const [, setSelectedFourth] = useState({ index: 11, value: hourItems[11].value });
+  const [, setSelectedFifth] = useState({ index: 2, value: largeNumberItems[2].value });
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sync · 7 visible → {selected.value}</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <Text style={styles.title}>expo-horizontal-picker</Text>
 
-      <HorizontalPicker
-        ref={firstPickerRef}
-        items={numberItems}
-        initialScrollIndex={499}
-        visibleItemCount={7}
-        onChange={(value, index) => {
-          setSelected({ index, value });
-          secondPickerRef.current?.scrollToIndex({ index, animated: true });
-        }}
-        pickerItemStyle={styles.pickerItem}
-      />
+        {/* 7 visible items (sync) */}
+        <HorizontalPicker
+          ref={firstPickerRef}
+          items={numberItems}
+          containerHeight={pickerContainerHeight}
+          initialScrollIndex={499}
+          visibleItemCount={7}
+          onChange={(value, index) => {
+            setSelectedFirst({ index, value });
+            secondPickerRef.current?.scrollToIndex({ index, animated: true });
+          }}
+          pickerItemStyle={styles.pickerItem}
+        />
+        <HorizontalPicker
+          ref={secondPickerRef}
+          items={numberItems}
+          containerHeight={pickerContainerHeight}
+          initialScrollIndex={499}
+          visibleItemCount={7}
+          onChange={(value, index) => {
+            setSelectedSecond({ index, value });
+            firstPickerRef.current?.scrollToIndex({ index, animated: true });
+          }}
+          pickerItemStyle={styles.pickerItem}
+        />
 
-      <HorizontalPicker
-        ref={secondPickerRef}
-        items={numberItems}
-        initialScrollIndex={499}
-        visibleItemCount={7}
-        onChange={(value, index) => {
-          setSelected({ index, value });
-          firstPickerRef.current?.scrollToIndex({ index, animated: true });
-        }}
-        pickerItemStyle={styles.pickerItem}
-      />
-    </View>
+        {/* 5 / 3 / 1 visible items */}
+        <HorizontalPicker
+          items={thousandItems}
+          containerHeight={pickerContainerHeight}
+          initialScrollIndex={9}
+          visibleItemCount={5}
+          onChange={(value, index) => setSelectedThird({ index, value })}
+          pickerItemStyle={styles.pickerItem}
+        />
+        <HorizontalPicker
+          items={hourItems}
+          containerHeight={pickerContainerHeight}
+          initialScrollIndex={11}
+          visibleItemCount={3}
+          onChange={(value, index) => setSelectedFourth({ index, value })}
+          pickerItemStyle={styles.pickerItem}
+        />
+        <HorizontalPicker
+          items={largeNumberItems}
+          containerHeight={pickerContainerHeight}
+          initialScrollIndex={2}
+          visibleItemCount={1}
+          onChange={(value, index) => setSelectedFifth({ index, value })}
+          pickerItemStyle={styles.pickerItem}
+        />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
     backgroundColor: '#eeeeee',
   },
+  content: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 16,
+  },
   title: {
-    marginBottom: 12,
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#111111',
   },
   pickerItem: {
@@ -132,6 +184,7 @@ export default function RefExample() {
       <HorizontalPicker
         ref={firstPickerRef}
         items={items}
+        containerHeight={53}
         onChange={(value, index) => {
           setSelected({ index, value });
           secondPickerRef.current?.scrollToIndex({ index, animated: true });
@@ -141,6 +194,7 @@ export default function RefExample() {
       <HorizontalPicker
         ref={secondPickerRef}
         items={items}
+        containerHeight={53}
         onChange={(value, index) => {
           setSelected({ index, value });
           firstPickerRef.current?.scrollToIndex({ index, animated: true });
@@ -153,7 +207,10 @@ export default function RefExample() {
 
 ## 📱 Example App
 
-A runnable Expo example app is included in [`example`](./example). It mirrors the README demo and includes ref-driven scroll controls.
+A runnable Expo example app is included in [`example`](./example). It includes:
+
+- two synced pickers (`visibleItemCount={7}`) driven by refs
+- additional standalone pickers with `visibleItemCount` set to `5`, `3`, and `1`
 
 ```bash
 cd example
@@ -170,6 +227,7 @@ Customize the focused and unfocused item styles with GPU-accelerated properties:
 ```ts
 <HorizontalPicker
   items={items}
+  containerHeight={53}
   focusedTransformStyle={[{ scale: 1.2 }]}
   unfocusedTransformStyle={[{ scale: 0.9 }]}
   focusedOpacityStyle={1}
@@ -186,6 +244,7 @@ Customize the focused and unfocused item styles with GPU-accelerated properties:
 | `items`                     | `PickerOption[]`                                       | –                    | Array of options to display. Each option is an object with `label` and `value`. |
 | `initialScrollIndex`       | `number`                                               | `0`                  | Index of the item initially selected.                                           |
 | `visibleItemCount`         | `number`                                               | `7`                  | Number of items visible on screen at once.                                      |
+| `containerHeight`          | `number`                                               | required             | Required picker container height reserved before width is measured, preventing layout shift. |
 | `onChange`                 | `(value: string \| number, index: number) => void`     | –                    | Callback triggered when the selected item changes.                              |
 | `focusedTransformStyle`    | `ViewStyle['transform']`                               | `[{ scale: 1.15 }]`  | Transform style applied to the focused item (GPU-accelerated).                  |
 | `unfocusedTransformStyle`  | `ViewStyle['transform']`                               | `[{ scale: 1 }]`     | Transform style applied to unfocused items (GPU-accelerated).                   |
@@ -205,7 +264,7 @@ The component extends `FlatListPropsWithLayout`, so you can also pass any valid 
 - `showsHorizontalScrollIndicator` (default: `false`)
 - `initialNumToRender` (default: `15`)
 - `maxToRenderPerBatch` (default: `15`)
-- `removeClippedSubviews` (default: `true`)
+- `removeClippedSubviews` (default: `Platform.OS !== 'android'`)
 - `ref` to call `scrollToEnd`, `scrollToIndex`, `scrollToItem`, and `scrollToOffset`
 
 ## ⚡ Performance Notes
